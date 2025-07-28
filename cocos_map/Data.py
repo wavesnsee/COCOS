@@ -53,7 +53,7 @@ class Data():
         # if label == 'wavecams_palavas_cristal':
         if 'wavecams_palavas' in label:
             if step is None: step = 1 #set default step
-            frames_wavecams = pickle.load(open(f'/home/florent/dev/COCOS/data/raw/palavas/{cam_name}/{date}/{hour}/Video_infos_palavas_{cam_name}_res_1.0.pk', 'rb'))
+            frames_wavecams = pickle.load(open(f'/home/florent/shared/florent/Projects/Palavas/{cam_name}/data_cocos/{date}/{hour}/Video_infos_Palavas_{cam_name}_res_1.0.pk', 'rb'))
             X           = frames_wavecams['X']
             Y           = frames_wavecams['Y']
             ls_frames   = frames_wavecams['ls_frames']
