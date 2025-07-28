@@ -51,7 +51,8 @@ hour = '07h'
 grid_resolutions_bathy = [8]
 
 # output directory
-output_dir = f'../results/{fieldsite}/{cam_name}/{date}/{hour}/'
+output_dir = # f'../results/{fieldsite}/{cam_name}/{date}/{hour}/'
+output_dir = f'/home/florent/shared/florent/Projects/Palavas/Surfreef_project/results/{fieldsite}/{cam_name}/{date}/{hour}/'
 Path(output_dir).mkdir(parents=True, exist_ok=True)
 
 # load video data
