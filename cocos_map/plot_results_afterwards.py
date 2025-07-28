@@ -34,8 +34,9 @@ def plot_bathy(results, output_dir_plot, depth_lims, diff_depth_lims, emprise, v
         if ground_truth_comparison:
             fig, ax = plt.subplots(1, 3, figsize=(22, 5))
             mask = np.isnan(results['Dk'][k])
-            diff_depth_ground_truth = results['Dk'][k] - results['Dgt']
             im1 = ax[0].pcolor(results['grid_X'], results['grid_Y'], results['Dk'][k] + vertical_shift_Dk, cmap='jet_r')
+            im1.set_clim([depth_lims[0], depth_lims[1]])
+            diff_depth_ground_truth = results['Dk'][k] - results['Dgt']
             im2 = ax[1].pcolor(results['grid_X'], results['grid_Y'], np.ma.array(results['Dgt'] + vertical_shift_Dk,
                                                                                  mask=mask), cmap='jet_r')
             im3 = ax[2].pcolor(results['grid_X'], results['grid_Y'], diff_depth_ground_truth, cmap='Spectral')
@@ -46,7 +47,6 @@ def plot_bathy(results, output_dir_plot, depth_lims, diff_depth_lims, emprise, v
             fig.colorbar(im1, ax=ax[0])
             fig.colorbar(im2, ax=ax[1])
             fig.colorbar(im3, ax=ax[2])
-            im1.set_clim([depth_lims[0], depth_lims[1]])
             im2.set_clim([depth_lims[0], depth_lims[1]])
             im3.set_clim([diff_depth_lims[0], diff_depth_lims[1]])
             ax[0].axis('equal')
@@ -89,7 +89,7 @@ def plot_bathy(results, output_dir_plot, depth_lims, diff_depth_lims, emprise, v
 
 
 def plot_all_diags(results, output_dir_plot, resolution, depth_lims, diff_depth_lims, kalman_error_lims, freqlims,
-                   vertical_re, plot_only_last_iteration=True):
+                   vertical_re, plot_only_last_iteration=False):
     depth_rmse = np.array([])
     depth_debiased_rmse = np.array([])
     depth_bias = np.array([])
@@ -125,18 +125,20 @@ def plot_all_diags(results, output_dir_plot, resolution, depth_lims, diff_depth_
         # depth
         im0 = ax[0, 0].pcolor(results['grid_X'], results['grid_Y'], results['Dk'][k], cmap='jet_r')
         im0.set_clim(depth_lims)
-        contours_0 = ax[0, 0].contour(results['grid_X'], results['grid_Y'], results['Dgt'], levels=[0.5, 2, 3.5, 5, 7.5, 10, 12.5, 15],
-                               colors=('k',), linewidths=(1.5,))
-        ax[0, 0].clabel(contours_0, contours_0.levels, fontsize=14, fmt='%.1f')  # , inline=True
+        if ~np.isnan(results['Dgt']):
+            contours_0 = ax[0, 0].contour(results['grid_X'], results['grid_Y'], results['Dgt'], levels=[0.5, 2, 3.5, 5, 7.5, 10, 12.5, 15],
+                                   colors=('k',), linewidths=(1.5,))
+            ax[0, 0].clabel(contours_0, contours_0.levels, fontsize=14, fmt='%.1f')  # , inline=True
         plt.colorbar(im0, ax=ax[0, 0])
 
         # diff depth
-        im1 = ax[0, 1].pcolor(results['grid_X'], results['grid_Y'], diff_depth, cmap='Spectral')
-        contours = ax[0, 1].contour(results['grid_X'], results['grid_Y'], diff_depth,
-                                 levels=[-1.5, -0.5, 0.5, 1.5], colors=('k',), linewidths=(1.5,))
-        ax[0, 1].clabel(contours, contours.levels, fontsize=14, fmt='%.1f')  # , inline=True
-        im1.set_clim(diff_depth_lims)
-        plt.colorbar(im1, ax=ax[0, 1])
+        if ~np.isnan(results['Dgt']):
+            im1 = ax[0, 1].pcolor(results['grid_X'], results['grid_Y'], diff_depth, cmap='Spectral')
+            contours = ax[0, 1].contour(results['grid_X'], results['grid_Y'], diff_depth,
+                                     levels=[-1.5, -0.5, 0.5, 1.5], colors=('k',), linewidths=(1.5,))
+            ax[0, 1].clabel(contours, contours.levels, fontsize=14, fmt='%.1f')  # , inline=True
+            im1.set_clim(diff_depth_lims)
+            plt.colorbar(im1, ax=ax[0, 1])
 
         # Kalman error
         im2 = ax[0, 2].pcolor(results['grid_X'], results['grid_Y'], results['d_K_errors'][k, :, :], cmap='Spectral')
@@ -238,16 +240,16 @@ def plot_all_diags(results, output_dir_plot, resolution, depth_lims, diff_depth_
 
 
 # execution options
-plot_only_bathy = False
+plot_only_bathy = True
 plot_all_results = True
-date = '20220314'
-hour = '07h'
+date = '20230208'
+hour = '16h'
 # date = '20220323'
 # hour = '15h'
 # date = '20220709'
 # hour = '11h'
-# vertical_ref = 'IGN69'#'WL' or 'IGN69'
-vertical_ref = 'WL'#'WL' or 'IGN69'
+vertical_ref = 'IGN69'#'WL' or 'IGN69'
+# vertical_ref = 'WL'#'WL' or 'IGN69'
 
 # configuration corresponding to given results
 # fieldsite = 'wavecams_palavas_cristal'
@@ -256,7 +258,7 @@ vertical_ref = 'WL'#'WL' or 'IGN69'
 
 fieldsite = 'wavecams_palavas_stpierre'
 # cam_names = ['st_pierre_1', 'st_pierre_2', 'st_pierre_3']
-cam_names = ['st_pierre_3']
+cam_names = ['St_Pierre_3']
 
 # fieldsite = 'chicama'
 # cam_names = ['cam_res_0.5m']
@@ -267,7 +269,7 @@ proj_imgs_res = 1.0
 
 # bathy grid resolution
 # bathy_grid_resolutions = [20, 15, 12, 10, 8, 6, 4]
-bathy_grid_resolutions = [15, 8, 6]
+bathy_grid_resolutions = [8]
 calcdmd = 'standard' # standard or robust
 
 for cam_name in cam_names:
@@ -281,11 +283,14 @@ for cam_name in cam_names:
         WL_ref_IGN69 = 0.60 - 0.307
     elif date == '20220323':
         WL_ref_IGN69 = 0.19 - 0.307
+    elif date == '20230208':
+        WL_ref_IGN69 = 0.112
 
     # for cpu_speed in cpu_speeds:
     for bathy_grid_resolution in bathy_grid_resolutions:
         # load results
-        output_dir = f'/home/florent/dev/COCOS/results/{fieldsite}/{cam_name}/{date}/{hour}/from_proj_frames_res_{proj_imgs_res}m/'
+        # output_dir = f'/home/florent/dev/COCOS/results/{fieldsite}/{cam_name}/{date}/{hour}/from_proj_frames_res_{proj_imgs_res}m/'
+        output_dir = f'/home/florent/shared/florent/Projects/Palavas/Surfreef_project/results/{fieldsite}/{cam_name}/{date}/{hour}/'
         try:
             # f_results = glob(output_dir + f'/results_CPU_speed_{cpu_speed}_calcdmd_{calcdmd}_exec_time_*.npz')[0]
             f_results = glob(output_dir + f'/results_grid_res_{bathy_grid_resolution}_calcdmd_{calcdmd}_exec_time_*.npz')[0]
@@ -315,17 +320,17 @@ for cam_name in cam_names:
             xmax = 576430
             ymin = 4819750
             ymax = 4820200
-        elif cam_name == 'st_pierre_2':
+        elif cam_name == 'St_Pierre_2':
             xmin = 574300
             xmax = 574700
             ymin = 4818950
             ymax = 4819370
-        elif cam_name == 'st_pierre_1':
+        elif cam_name == 'St_Pierre_1':
             xmin = 574650
             xmax = 575112
             ymin = 4819178
             ymax = 4819514
-        elif cam_name == 'st_pierre_3':
+        elif cam_name == 'St_Pierre_3':
             xmin = 574500
             xmax = 574925
             ymin = 4819088
@@ -352,10 +357,10 @@ for cam_name in cam_names:
 
         # check if ground truth exists:
         # ground_truth_exists = type(results['Dgt']).__module__ == np.__name__
-        ground_truth_comparison = True
+        ground_truth_comparison = False
 
         # affichage
-        depth_lims = [0, 6]
+        depth_lims = [0, 8]
         diff_depth_lims = [-1.5, 1.5]
 
         if plot_only_bathy:
