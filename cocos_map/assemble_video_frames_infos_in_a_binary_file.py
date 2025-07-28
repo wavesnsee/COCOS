@@ -15,30 +15,33 @@ import matplotlib.pyplot as plt
 from pathlib import Path
 
 # sitename
-# site = 'palavas'
-# cam_name = 'cristal_2'
-site = 'palavas'
-cam_name = 'st_pierre_3'
-# site = 'chicama'
-# cam_name = 'cam'
+site = 'Palavas'
+cam_name = 'St_Pierre_3'
+
 sitename = f'{site}_{cam_name}'
 
 # date, hour of video
-date = '20220314'
+# date = '20230208/'
+# hour = '16h'
+# zmean = '0.112'
+date = '20230422/'
 hour = '07h'
+zmean = '0.245'
+res = '1.0'
 
 # data_dir
-data_dir = Path(f'/home/florent/dev/COCOS/data/raw/{site}/{cam_name}/')
+data_dir = Path(f'/home/florent/shared/florent/Projects/{site}/{cam_name}/data_cocos/')
 
 # input projected frames
-dir_frames = data_dir.joinpath(f'{date}/{hour}/frames_projected_res_4.0_zmean_0.27_grey/')
+dir_frames = data_dir.joinpath(f'{date}/{hour}/frames_projected_res_{res}_zmean_{zmean}_grey/')
 
-ls = sorted(dir_frames.rglob("P*.png"))
+ls = sorted(dir_frames.glob("P*.png"))
 
 # number of used frames
 # n = 900
-# n = 200
-n = None
+# n = 700
+# n = 320
+# n = None
 if n is not None:
     ls = ls[0:n]
 else:
@@ -52,14 +55,14 @@ height, width = img_0.shape[0:2]
 dt = 0.5
 
 # grid projected coordinates
-f_coords = dir_frames.joinpath('coords_projected_grid.pkl')
+f_coords = data_dir.joinpath(f'{date}/{hour}/coords_projected_grid.pkl')
 grid_coords = pickle.load(open(f_coords, 'rb'), encoding='latin-1')
 
 dx = round(grid_coords['utmx_projected_grid'][0, 1] - grid_coords['utmx_projected_grid'][0, 0], 2)
 
 # georef
-# georef = json.load(open('/home/florent/ownCloud/Projets/SuiviVideo/Palavas/cameras/CAM17/info/georef/georef.json'))
-georef = json.load(open('/home/florent/ownCloud/Projets/SuiviVideo/Palavas/cameras/CAM21/info/georef/georef.json'))
+georef = json.load(open('/home/florent/shared/florent/Projects/Palavas/St_Pierre_1/info/georef_local_rotated/georef.json'))
+# georef = json.load(open('/home/florent/ownCloud/Projets/SuiviVideo/Palavas/cameras/CAM21/info/georef/georef.json'))
 # georef = None
 
 # update grid projection coordinates with camera position
@@ -85,6 +88,6 @@ output_dict['n_frames'] = n
 output_dict['ls_frames'] = ls
 
 # save
-pk.dump(output_dict, open(data_dir.joinpath(f'{date}/{hour}/', f'Video_infos_{sitename}_res_{dx:.1f}.pk'), 'wb'))
+pk.dump(output_dict, open(data_dir.joinpath(f'{date}/{hour}/', f'Video_infos_{sitename}_res_{dx:.1f}_n{n}.pk'), 'wb'))
 
 
